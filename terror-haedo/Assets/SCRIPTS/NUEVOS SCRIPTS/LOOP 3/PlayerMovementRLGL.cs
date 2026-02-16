@@ -6,13 +6,12 @@ public class PlayerMovementRLGL : MonoBehaviour
 {
     [Header("Red Light, Green Light")]
     public RedLightGreenLightManager rlglManager;
-    public Transform respawnPoint;
     public float moveThreshold = 0.01f;
-    public float cameraThreshold = 0.5f; // sensibilidad de movimiento de cámara
-    public float redLightDelay = 0.2f; // delay antes de morir en rojo
+    public float cameraThreshold = 0.5f;
+    public float redLightDelay = 0.2f;
 
     [Header("Referencia a cámara")]
-    public Transform playerCamera; // asignar la cámara del jugador aquí
+    public Transform playerCamera;
 
     private CharacterController controller;
     private Vector3 lastPosition;
@@ -28,9 +27,7 @@ public class PlayerMovementRLGL : MonoBehaviour
             lastCamEuler = new Vector2(playerCamera.eulerAngles.x, playerCamera.eulerAngles.y);
 
         if (rlglManager == null)
-            Debug.LogWarning("⚠️ RedLightGreenLightManager no asignado al jugador.");
-        if (respawnPoint == null)
-            Debug.LogWarning("⚠️ RespawnPoint no asignado al jugador.");
+            Debug.LogWarning("⚠️ RedLightGreenLightManager no asignado.");
     }
 
     void Update()
@@ -39,18 +36,16 @@ public class PlayerMovementRLGL : MonoBehaviour
 
         bool isRedLight = rlglManager.isRedLight;
 
-        // Delay antes de poder morir
         if (isRedLight && !canDie)
             StartCoroutine(EnableDeathAfterDelay());
         else if (!isRedLight)
             canDie = false;
 
-        // Movimiento del jugador
         Vector3 moveDelta = controller.transform.position - lastPosition;
         float inputDelta = Mathf.Abs(Input.GetAxis("Vertical")) + Mathf.Abs(Input.GetAxis("Horizontal"));
 
-        // Movimiento de la cámara
         bool camMoved = false;
+
         if (playerCamera != null)
         {
             Vector2 camEuler = new Vector2(playerCamera.eulerAngles.x, playerCamera.eulerAngles.y);
@@ -62,11 +57,10 @@ public class PlayerMovementRLGL : MonoBehaviour
             lastCamEuler = camEuler;
         }
 
-        // Chequeo de muerte
         if (isRedLight && canDie && (moveDelta.magnitude > moveThreshold || inputDelta > 0f || camMoved))
         {
-            Debug.Log("💀 Te moviste o giraste la cámara durante RED LIGHT!");
-            DieAndRespawn();
+            Debug.Log("💀 Movimiento detectado en RED LIGHT");
+            TriggerFail();
         }
 
         lastPosition = controller.transform.position;
@@ -78,19 +72,12 @@ public class PlayerMovementRLGL : MonoBehaviour
         canDie = true;
     }
 
-    private void DieAndRespawn()
+    private void TriggerFail()
     {
-        if (respawnPoint != null)
-        {
-            controller.enabled = false;
-            transform.position = respawnPoint.position;
-            transform.rotation = respawnPoint.rotation;
-            controller.enabled = true;
-        }
-
-        // Detener el minijuego al respawnear
         if (rlglManager != null)
-            rlglManager.StopMinigame();
+        {
+            rlglManager.PlayerFailed(); // 🔴 ahora pasa por el sistema global
+        }
 
         canDie = false;
     }

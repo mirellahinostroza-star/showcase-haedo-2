@@ -2,37 +2,54 @@
 
 public class CeilingReset : MonoBehaviour
 {
-    [SerializeField] private Transform spawnPoint;         
-    [SerializeField] private string playerTag = "Player";  
-    [SerializeField] private CeilingTrap ceilingTrap;      
+    [Header("Spawn")]
+    [SerializeField] private Transform spawnPoint;
+    [SerializeField] private string playerTag = "Player";
+
+    [Header("Referencias")]
+    [SerializeField] private CeilingTrap ceilingTrap;
+    [SerializeField] private LoopManager loopManager;
 
     private void OnTriggerEnter(Collider other)
     {
-        // Detecta jugador
-        if (other.CompareTag(playerTag) || other.transform.root.CompareTag(playerTag))
+        if (!other.CompareTag(playerTag) && !other.transform.root.CompareTag(playerTag))
+            return;
+
+        // 🔴 Registrar derrota global (esto actualiza la UI automáticamente)
+        if (loopManager != null)
         {
-            // Buscar CharacterController real del jugador
-            CharacterController controller = other.GetComponentInParent<CharacterController>();
-            Transform playerRoot = controller != null ? controller.transform : other.transform.root;
+            loopManager.RegisterFail();
+        }
+        else
+        {
+            Debug.LogWarning("CeilingReset: LoopManager no asignado.");
+        }
 
-            if (controller != null)
-            {
-                controller.enabled = false;
-                playerRoot.position = spawnPoint.position;
-                controller.enabled = true;
-            }
-            else
-            {
-                playerRoot.position = spawnPoint.position;
-            }
+        // 🔁 Respawn jugador
+        CharacterController controller = other.GetComponentInParent<CharacterController>();
+        Transform playerRoot = controller != null ? controller.transform : other.transform.root;
 
-            Debug.Log("CeilingReset: jugador reposicionado al spawnpoint.");
+        if (spawnPoint == null)
+        {
+            Debug.LogError("CeilingReset: SpawnPoint no asignado.");
+            return;
+        }
 
-            // Reiniciar el minijuego para que pueda activarse de nuevo
-            if (ceilingTrap != null)
-            {
-                ceilingTrap.ResetCeiling();
-            }
+        if (controller != null)
+        {
+            controller.enabled = false;
+            playerRoot.position = spawnPoint.position;
+            controller.enabled = true;
+        }
+        else
+        {
+            playerRoot.position = spawnPoint.position;
+        }
+
+        // 🔁 Resetear techo
+        if (ceilingTrap != null)
+        {
+            ceilingTrap.ResetCeiling();
         }
     }
 }

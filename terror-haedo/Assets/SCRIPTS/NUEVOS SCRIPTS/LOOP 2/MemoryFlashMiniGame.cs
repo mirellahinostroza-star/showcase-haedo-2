@@ -92,7 +92,20 @@ public class MemoryFlashMiniGame : MonoBehaviour
     {
         Debug.Log("[MemoryFlash] Secuencia incorrecta. Reiniciando Loop-2.");
 
-        // 🔥 Buscar el objeto padre llamado "Loop-2"
+        inputEnabled = false;
+        inGame = false;
+
+        // 🔴 Registrar derrota global (actualiza UI automáticamente)
+        if (loopManager != null)
+        {
+            loopManager.RegisterFail();
+        }
+        else
+        {
+            Debug.LogWarning("MemoryFlashMiniGame: LoopManager no asignado.");
+        }
+
+        // 🔥 Resetear ambos pasillos dentro de Loop-2
         Transform loopRoot = transform;
 
         while (loopRoot.parent != null && loopRoot.name != "Loop-2")
@@ -115,6 +128,7 @@ public class MemoryFlashMiniGame : MonoBehaviour
             Debug.LogWarning("No se encontró Loop-2 en la jerarquía.");
         }
 
+        // 🔁 Respawn jugador
         if (loopManager != null)
             loopManager.RespawnPlayer();
     }

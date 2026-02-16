@@ -6,60 +6,68 @@ public class Loop5Manager : MonoBehaviour
 {
     [Header("Referencias")]
     public LoopManager loopManager;
-    public WeepingAngelAI angel;           // referencia al Weeping Angel del loop 5
-    public GameObject startTrigger;        // trigger para iniciar el loop 5
+    public WeepingAngelAI angel;
+    public GameObject startTrigger;
     public Transform loop5SpawnPoint;
 
-    [Header("Configuración del Loop 5")]
+    [Header("Configuración")]
     public bool autoActivateAngel = true;
 
-    void Start()
+    private void Start()
     {
         ResetLoop5Environment();
     }
 
-    // 👉 Llamado por el trigger de inicio del Loop 5
+    // 🔵 INICIAR LOOP 5
     public void StartLoop5()
     {
         Debug.Log("[Loop5] Iniciando Loop 5...");
 
         if (angel != null && autoActivateAngel)
-        {
             angel.ActivateAngel();
-            Debug.Log("[Loop5] Weeping Angel ACTIVADO");
-        }
 
         if (startTrigger != null)
             startTrigger.SetActive(false);
     }
 
-    // 👉 Llamado cuando el jugador falla o reinicia
+    // 🔴 DERROTA OFICIAL LOOP 5
+    public void PlayerFailed()
+    {
+        Debug.Log("[Loop5] Derrota registrada");
+
+        // 1️⃣ Registrar derrota global
+        if (loopManager != null)
+            loopManager.RegisterFail();
+
+        // 2️⃣ Resetear entorno completo
+        ResetLoop5();
+    }
+
+    // 🔁 RESET COMPLETO DEL LOOP
     public void ResetLoop5()
     {
-        Debug.Log("[Loop5] Reiniciando Loop 5...");
-
-        // Reset del Weeping Angel
+        // Reset del Angel
         if (angel != null)
         {
-            // 🔥 En vez de modificar isActive directo, usamos su método
             angel.DeactivateAngel();
 
-            // Detener movimiento
             var nav = angel.GetComponent<UnityEngine.AI.NavMeshAgent>();
             if (nav) nav.ResetPath();
         }
 
-        // Respawn del jugador
-        if (loop5SpawnPoint != null)
+        // Ajustar spawn
+        if (loop5SpawnPoint != null && loopManager != null)
             loopManager.SetSpawnPoint(loop5SpawnPoint.position);
 
-        loopManager.RespawnPlayer();
+        // Respawn centralizado
+        if (loopManager != null)
+            loopManager.RespawnPlayer();
 
         // Reactivar trigger
         if (startTrigger != null)
             startTrigger.SetActive(true);
 
-        Debug.Log("[Loop5] Loop 5 completamente reseteado");
+        Debug.Log("[Loop5] Loop 5 reseteado correctamente");
     }
 
     private void ResetLoop5Environment()

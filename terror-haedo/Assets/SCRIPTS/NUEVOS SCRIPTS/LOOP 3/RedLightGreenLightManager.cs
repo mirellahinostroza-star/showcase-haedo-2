@@ -10,17 +10,20 @@ public class RedLightGreenLightManager : MonoBehaviour
     public float redDuration = 2f;
 
     [Header("Sonido")]
-    public AudioSource redLightSound;  // ← arrastrá acá el sonido que quieras
+    public AudioSource redLightSound;
+
+    [Header("Loop Manager")]
+    public LoopManager loopManager; // 🔴 IMPORTANTE
 
     [HideInInspector] public bool isRedLight = false;
 
     private Coroutine cycleCoroutine;
     private bool isActive = false;
 
-    // Llamado desde el trigger para arrancar el minijuego
+    // 🔵 ARRANCAR MINIJUEGO
     public void StartMinigame()
     {
-        if (isActive) return; // si ya está activo, no reiniciar
+        if (isActive) return;
 
         isActive = true;
         isRedLight = false;
@@ -28,14 +31,32 @@ public class RedLightGreenLightManager : MonoBehaviour
         foreach (var doll in dolls)
             doll.SetLightState(true);
 
-        // Asegurar que el sonido esté apagado al iniciar
         if (redLightSound != null)
             redLightSound.Stop();
 
         cycleCoroutine = StartCoroutine(Cycle());
     }
 
-    // Llamado cuando el jugador muere
+    // 🔴 DERROTA OFICIAL DEL LOOP 3
+    public void PlayerFailed()
+    {
+        if (!isActive) return;
+
+        Debug.Log("🔴 Loop 3 - Derrota registrada");
+
+        // 1️⃣ Registrar derrota global
+        if (loopManager != null)
+            loopManager.RegisterFail();
+
+        // 2️⃣ Detener minijuego
+        StopMinigame();
+
+        // 3️⃣ Respawn centralizado
+        if (loopManager != null)
+            loopManager.RespawnPlayer();
+    }
+
+    // 🛑 DETENER MINIJUEGO
     public void StopMinigame()
     {
         if (!isActive) return;
@@ -46,18 +67,16 @@ public class RedLightGreenLightManager : MonoBehaviour
         if (cycleCoroutine != null)
             StopCoroutine(cycleCoroutine);
 
-        // Dejar muñecas en verde al detener
         foreach (var doll in dolls)
             doll.SetLightState(true);
 
-        // Apagar sonido
         if (redLightSound != null)
             redLightSound.Stop();
     }
 
     private IEnumerator Cycle()
     {
-        while (true)
+        while (isActive)
         {
             // 🟢 GREEN LIGHT
             isRedLight = false;
@@ -65,7 +84,6 @@ public class RedLightGreenLightManager : MonoBehaviour
             foreach (var doll in dolls)
                 doll.SetLightState(true);
 
-            // Apagar sonido si estaba sonando
             if (redLightSound != null && redLightSound.isPlaying)
                 redLightSound.Stop();
 
@@ -77,7 +95,6 @@ public class RedLightGreenLightManager : MonoBehaviour
             foreach (var doll in dolls)
                 doll.SetLightState(false);
 
-            // Encender sonido de luz roja
             if (redLightSound != null && !redLightSound.isPlaying)
                 redLightSound.Play();
 

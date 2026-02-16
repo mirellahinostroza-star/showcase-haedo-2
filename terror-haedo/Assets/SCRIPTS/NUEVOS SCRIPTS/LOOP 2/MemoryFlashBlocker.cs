@@ -1,8 +1,17 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class MemoryFlashBlocker : MonoBehaviour
 {
     private GameObject blockerRoot;
+
+    [Header("Loop Settings")]
+    public LoopManager loopManager;
+    public int loopToPlaySound = 2;
+
+    [Header("Sound")]
+    public AudioClip victoryClip;
+
+    private bool alreadyUnlocked = false;
 
     private void Awake()
     {
@@ -10,14 +19,18 @@ public class MemoryFlashBlocker : MonoBehaviour
     }
 
     public void UnlockPath()
-    {
-        Debug.Log($"[{gameObject.name}] Camino desbloqueado.");
-        blockerRoot.SetActive(false);
-    }
+{
+    Debug.Log("UNLOCKPATH LLAMADO");
+
+    if (victoryClip != null)
+        AudioSource.PlayClipAtPoint(victoryClip, transform.position);
+
+    blockerRoot.SetActive(false);
+}
 
     public void ResetBlocker()
     {
-        Debug.Log($"[{gameObject.name}] Camino BLOQUEADO nuevamente.");
+        alreadyUnlocked = false;
         blockerRoot.SetActive(true);
     }
 }

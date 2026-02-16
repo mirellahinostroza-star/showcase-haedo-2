@@ -9,7 +9,7 @@ public class Loop4Manager : MonoBehaviour
     public Light[] lightsToControl;
     public GameObject[] hazardBlocks;
     public Transform loop4SpawnPoint;
-    public GameObject startTrigger; // 👈 referencia al Loop4_StartTrigger
+    public GameObject startTrigger;
 
     [Header("Tiempos")]
     public float blackoutDuration = 2f;
@@ -30,45 +30,40 @@ public class Loop4Manager : MonoBehaviour
     IEnumerator BlackoutRoutine()
     {
         blackoutRunning = true;
-        Debug.Log("[Loop4] Iniciando blackout...");
 
-        // Apagar luces
         foreach (var l in lightsToControl)
             if (l != null) l.enabled = false;
 
         yield return new WaitForSeconds(blackoutDuration);
 
-        // Encender luces
         foreach (var l in lightsToControl)
             if (l != null) l.enabled = true;
 
-        // Mostrar cubos
         foreach (var b in hazardBlocks)
             SetBlockVisible(b, true);
 
-        Debug.Log("[Loop4] Blackout terminado → luces encendidas y cubos visibles");
         blackoutRunning = false;
     }
 
-    public void ResetLoop4()
+    // 🔴 MÉTODO OFICIAL DE DERROTA LOOP 4
+    public void PlayerFailed()
     {
-        Debug.Log("[Loop4] Jugador falló. Reiniciando Loop 4...");
+        Debug.Log("[Loop4] Derrota registrada");
 
-        // 🔹 Ocultamos los cubos
-        foreach (var b in hazardBlocks)
-            SetBlockVisible(b, false);
+        // 1️⃣ Registrar derrota global
+        if (loopManager != null)
+            loopManager.RegisterFail();
 
-        // 🔹 Reactivamos el trigger de inicio (para que pueda volver a iniciar el blackout)
-        if (startTrigger != null)
-            startTrigger.SetActive(true);
+        // 2️⃣ Resetear entorno
+        ResetEnvironment();
 
-        // 🔹 Volvemos al punto de respawn del Loop 4
+        // 3️⃣ Ajustar spawn
         if (loop4SpawnPoint != null)
             loopManager.SetSpawnPoint(loop4SpawnPoint.position);
 
-        loopManager.RespawnPlayer();
-
-        Debug.Log("[Loop4] Loop reseteado completamente");
+        // 4️⃣ Respawn centralizado
+        if (loopManager != null)
+            loopManager.RespawnPlayer();
     }
 
     private void ResetEnvironment()

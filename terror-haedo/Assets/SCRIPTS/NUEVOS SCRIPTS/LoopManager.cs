@@ -1,7 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 
 public class LoopManager : MonoBehaviour
 {
@@ -10,9 +10,16 @@ public class LoopManager : MonoBehaviour
     public Transform spawnPoint;
 
     [Header("Loops")]
-    public GameObject[] loops; // ← arrastrá aquí tus loops en orden (Loop1, Loop2, etc.)
+    public GameObject[] loops;
 
     [HideInInspector] public int currentLoop = 0;
+
+    [Header("Narrativa")]
+    [SerializeField] private int totalFails = 0;
+
+    // 🔔 Evento para notificar a la UI
+    public static Action<int> OnFailUpdated;
+
     private Vector3 initialSpawnPosition;
 
     void Start()
@@ -22,44 +29,63 @@ public class LoopManager : MonoBehaviour
 
         if (spawnPoint != null)
             initialSpawnPosition = spawnPoint.position;
-        else
+        else if (player != null)
             initialSpawnPosition = player.transform.position;
 
         ActivateLoop(currentLoop);
+
+        // 🔄 Notificar valor inicial (0)
+        OnFailUpdated?.Invoke(totalFails);
     }
 
-        // 🔁 Resetear al primer loop
+    // 🔴 Registrar derrota
+    public void RegisterFail()
+    {
+        totalFails++;
+
+        Debug.Log("❌ Derrotas totales: " + totalFails);
+
+        OnFailUpdated?.Invoke(totalFails);
+    }
+
+    public int GetTotalFails()
+    {
+        return totalFails;
+    }
+
+    public bool IsGoodEnding()
+    {
+        return totalFails <= 3; // Ajustable
+    }
+
     public void ResetToFirstLoop()
     {
-        Debug.Log("🔄 Reset to first loop");
         currentLoop = 0;
         RespawnPlayer();
         ActivateLoop(currentLoop);
     }
 
-
-    // ⏩ Avanzar al siguiente loop
     public void AdvanceLoop()
     {
         currentLoop++;
+
         if (currentLoop >= loops.Length)
         {
             Debug.Log("🎉 ¡Ganaste todos los loops!");
-            currentLoop = loops.Length - 1; // se queda en el último
+            currentLoop = loops.Length - 1;
             return;
         }
 
-        Debug.Log("⏭ Avanzando al loop " + currentLoop);
         RespawnPlayer();
         ActivateLoop(currentLoop);
     }
 
-    // 🧍‍♂️ Respawn del jugador
     public void RespawnPlayer()
     {
         if (player == null) return;
 
         CharacterController controller = player.GetComponent<CharacterController>();
+
         if (controller != null)
         {
             controller.enabled = false;
@@ -70,17 +96,13 @@ public class LoopManager : MonoBehaviour
         {
             player.transform.position = initialSpawnPosition;
         }
-
-        Debug.Log("Jugador respawneado en el punto inicial");
     }
 
-    // 📍 Cambiar punto de respawn dinámicamente
     public void SetSpawnPoint(Vector3 newSpawn)
     {
         initialSpawnPosition = newSpawn;
     }
 
-    // 🟢 Activa solo el loop actual
     private void ActivateLoop(int index)
     {
         for (int i = 0; i < loops.Length; i++)
@@ -91,9 +113,9 @@ public class LoopManager : MonoBehaviour
 
         Debug.Log("Loop activo: " + index);
     }
+
     public void ResetCurrentLoop()
-{
-    Debug.Log($"🔁 Reiniciando loop actual: {currentLoop}");
-    RespawnPlayer();
-}
+    {
+        RespawnPlayer();
+    }
 }

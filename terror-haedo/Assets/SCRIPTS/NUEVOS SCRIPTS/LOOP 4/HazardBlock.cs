@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class HazardBlock : MonoBehaviour
@@ -15,8 +13,8 @@ public class HazardBlock : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("[Loop4] Jugador tocó un espectro (Trigger)!");
-            loop4Manager.ResetLoop4();
+            if (loop4Manager != null)
+                loop4Manager.PlayerFailed();
         }
     }
 }
