@@ -14,9 +14,6 @@ public class LoopManager : MonoBehaviour
 
     [HideInInspector] public int currentLoop = 0;
 
-    [Header("Narrativa")]
-    [SerializeField] private int totalFails = 0;
-
     // 🔔 Evento para notificar a la UI
     public static Action<int> OnFailUpdated;
 
@@ -34,28 +31,27 @@ public class LoopManager : MonoBehaviour
 
         ActivateLoop(currentLoop);
 
-        // 🔄 Notificar valor inicial (0)
-        OnFailUpdated?.Invoke(totalFails);
+        // 🔄 Notificar valor actual desde GameManager
+        if (GameManager.Instance != null)
+            OnFailUpdated?.Invoke(GameManager.Instance.totalFails);
     }
 
     // 🔴 Registrar derrota
     public void RegisterFail()
     {
-        totalFails++;
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RegisterFail();
 
-        Debug.Log("❌ Derrotas totales: " + totalFails);
+            Debug.Log("❌ Derrotas globales: " + GameManager.Instance.totalFails);
 
-        OnFailUpdated?.Invoke(totalFails);
-    }
-
-    public int GetTotalFails()
-    {
-        return totalFails;
-    }
-
-    public bool IsGoodEnding()
-    {
-        return totalFails <= 3; // Ajustable
+            // Notificar UI
+            OnFailUpdated?.Invoke(GameManager.Instance.totalFails);
+        }
+        else
+        {
+            Debug.LogWarning("GameManager no encontrado.");
+        }
     }
 
     public void ResetToFirstLoop()

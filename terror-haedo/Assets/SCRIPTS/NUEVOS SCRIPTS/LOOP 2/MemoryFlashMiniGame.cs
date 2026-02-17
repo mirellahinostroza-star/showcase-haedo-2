@@ -95,14 +95,14 @@ public class MemoryFlashMiniGame : MonoBehaviour
         inputEnabled = false;
         inGame = false;
 
-        // 🔴 Registrar derrota global (actualiza UI automáticamente)
-        if (loopManager != null)
+        // 🔴 REGISTRAR DERROTA GLOBAL
+        if (GameManager.Instance != null)
         {
-            loopManager.RegisterFail();
+            GameManager.Instance.AddFail();
         }
         else
         {
-            Debug.LogWarning("MemoryFlashMiniGame: LoopManager no asignado.");
+            Debug.LogError("GameManager no existe en la escena.");
         }
 
         // 🔥 Resetear ambos pasillos dentro de Loop-2
@@ -128,7 +128,7 @@ public class MemoryFlashMiniGame : MonoBehaviour
             Debug.LogWarning("No se encontró Loop-2 en la jerarquía.");
         }
 
-        // 🔁 Respawn jugador
+        // 🔁 Respawn jugador (esto sí sigue usando LoopManager)
         if (loopManager != null)
             loopManager.RespawnPlayer();
     }

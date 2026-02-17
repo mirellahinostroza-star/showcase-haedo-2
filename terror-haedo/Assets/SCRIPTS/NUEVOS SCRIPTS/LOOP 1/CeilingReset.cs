@@ -8,21 +8,20 @@ public class CeilingReset : MonoBehaviour
 
     [Header("Referencias")]
     [SerializeField] private CeilingTrap ceilingTrap;
-    [SerializeField] private LoopManager loopManager;
 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag(playerTag) && !other.transform.root.CompareTag(playerTag))
             return;
 
-        // 🔴 Registrar derrota global (esto actualiza la UI automáticamente)
-        if (loopManager != null)
+        // 🔴 Registrar derrota GLOBAL
+        if (GameManager.Instance != null)
         {
-            loopManager.RegisterFail();
+            GameManager.Instance.AddFail();
         }
         else
         {
-            Debug.LogWarning("CeilingReset: LoopManager no asignado.");
+            Debug.LogError("GameManager no existe en la escena.");
         }
 
         // 🔁 Respawn jugador

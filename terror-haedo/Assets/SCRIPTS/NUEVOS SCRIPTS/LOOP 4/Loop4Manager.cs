@@ -50,15 +50,21 @@ public class Loop4Manager : MonoBehaviour
     {
         Debug.Log("[Loop4] Derrota registrada");
 
-        // 1️⃣ Registrar derrota global
-        if (loopManager != null)
-            loopManager.RegisterFail();
+        // 1️⃣ Registrar derrota GLOBAL
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.AddFail();
+        }
+        else
+        {
+            Debug.LogError("GameManager no existe en la escena.");
+        }
 
         // 2️⃣ Resetear entorno
         ResetEnvironment();
 
         // 3️⃣ Ajustar spawn
-        if (loop4SpawnPoint != null)
+        if (loop4SpawnPoint != null && loopManager != null)
             loopManager.SetSpawnPoint(loop4SpawnPoint.position);
 
         // 4️⃣ Respawn centralizado

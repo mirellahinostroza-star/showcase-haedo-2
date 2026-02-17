@@ -13,7 +13,7 @@ public class RedLightGreenLightManager : MonoBehaviour
     public AudioSource redLightSound;
 
     [Header("Loop Manager")]
-    public LoopManager loopManager; // 🔴 IMPORTANTE
+    public LoopManager loopManager; // sigue siendo necesario para respawn
 
     [HideInInspector] public bool isRedLight = false;
 
@@ -44,9 +44,15 @@ public class RedLightGreenLightManager : MonoBehaviour
 
         Debug.Log("🔴 Loop 3 - Derrota registrada");
 
-        // 1️⃣ Registrar derrota global
-        if (loopManager != null)
-            loopManager.RegisterFail();
+        // 1️⃣ Registrar derrota GLOBAL
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.AddFail();
+        }
+        else
+        {
+            Debug.LogError("GameManager no existe en la escena.");
+        }
 
         // 2️⃣ Detener minijuego
         StopMinigame();

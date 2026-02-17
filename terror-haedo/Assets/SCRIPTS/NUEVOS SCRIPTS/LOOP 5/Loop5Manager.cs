@@ -35,9 +35,15 @@ public class Loop5Manager : MonoBehaviour
     {
         Debug.Log("[Loop5] Derrota registrada");
 
-        // 1️⃣ Registrar derrota global
-        if (loopManager != null)
-            loopManager.RegisterFail();
+        // 1️⃣ Registrar derrota GLOBAL
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.AddFail();
+        }
+        else
+        {
+            Debug.LogError("GameManager no existe en la escena.");
+        }
 
         // 2️⃣ Resetear entorno completo
         ResetLoop5();

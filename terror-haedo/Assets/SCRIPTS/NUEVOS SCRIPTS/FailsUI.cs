@@ -5,19 +5,18 @@ public class FailsUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI failsText;
 
-    private void OnEnable()
-    {
-        LoopManager.OnFailUpdated += UpdateUI;
-    }
+    private int lastValue = -1;
 
-    private void OnDisable()
+    void Update()
     {
-        LoopManager.OnFailUpdated -= UpdateUI;
-    }
+        if (GameManager.Instance == null) return;
 
-    private void UpdateUI(int newFailCount)
-    {
-        if (failsText != null)
-            failsText.text = "Muertes: " + newFailCount;
+        int currentFails = GameManager.Instance.totalFails;
+
+        if (currentFails != lastValue)
+        {
+            lastValue = currentFails;
+            failsText.text = "Muertes: " + currentFails;
+        }
     }
 }

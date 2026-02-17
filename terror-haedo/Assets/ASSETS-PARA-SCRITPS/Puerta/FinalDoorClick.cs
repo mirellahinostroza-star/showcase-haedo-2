@@ -12,7 +12,7 @@ public class FinalDoorClick : MonoBehaviour
         finished = true;
         Debug.Log("[FinalDoor] Puerta clickeada. Cargando escena FINAL...");
 
-        SceneManager.LoadScene("FINAL");
+        SceneManager.LoadScene("Final");
     }
 }
 
